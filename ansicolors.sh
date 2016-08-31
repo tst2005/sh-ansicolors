@@ -1,5 +1,42 @@
 #!/bin/sh
 
+ansicolors_line() {
+	local line="$1";shift
+	local fmt='%s\n'
+	while [ -n "$line" ]; do
+		case "$line" in
+			('%{'*'}'*) ;;
+			(*'%{'*)
+				echo >&2 "unterminated color tag, missing '}' in $line"
+				#set -- "$@" "$line"
+				return 1
+			;;
+			("")	break ;;
+			(*)
+				set -- "$@" "$line"
+				break
+			;;
+		esac
+		# ^(%{[^}]*})(.*)$ => \1
+		# tag => \1
+		# trainling ~=> \2
+		local tag="${line%%\}*}"'}'
+		line="${line#*\}}"
+		local trailing="${line%%%{*\}*}"
+		case "$line" in
+			(*'%{'*'}'*)
+				line='%{'"${line#*%{}"
+			;;
+			(*)
+				trailing=''
+			;;
+		esac
+		[ -z "$tag"      ] || set -- "$@" "$tag"
+		[ -z "$trailing" ] || set -- "$@" "$trailing"
+	done
+	ansicolors "$@"
+}
+
 ansicolors() {
 	local noerror=false
 	local printf=printf
@@ -7,6 +44,17 @@ ansicolors() {
 	while [ $# -gt 0 ]; do
 		case "$1" in
 			('%{'*'}') ;;
+			('%{'*'}'*'}'*)
+				local line="$1";shift
+				while true; do
+					local tag="${line%%\}*}"'}'	# ^(%{[^}]*})(.*)$ => \1
+					line="${line#*\}}"
+					local trailing="${line%%\%*}" 	# ^(%{[^}]*})(.*)$ => \2
+					line="${line#*\%\{}"'%{'
+				done
+				#shift
+				continue
+			;;
 			(*) printf '%s' "$1"; shift; continue ;;
 		esac
 
@@ -17,7 +65,7 @@ ansicolors() {
 		local fgc=''					# Foreground color code
 		local bgc=''					# Background color code
 		local s0='' s1='' s2='' s3='' s4='' s5='' s6=''	# all Styles
-			
+
 		IFS="${IFS}+_"					# Split the list using spaces or '+' separators
 		for x in $list; do
 			local c=''				# tmp color code
@@ -54,10 +102,12 @@ ansicolors() {
 				('s1')			s1=true		;;
 				('s2')			s2=true		;;
 				('s3')			s3=true		;;
-				('u'|'underline')	s4=true	;;
+				('u'|'underline')	s4=true		;;
 				('s4')			s4=true		;;
 				('s5')			s5=true		;;
 				('s6')			s6=true		;;
+				('s7')			s7=true		;;
+				('s8')			s8=true		;;
 				('lf'|'\n')		trailing='\n'	;;
 				('cr'|'\r')		trailing='\r'	;;
 				('crlf'|'\r\n')		trailing='\r\n' ;;
@@ -88,7 +138,7 @@ ansicolors() {
 			fi
 		done
 		if [ -z "$codes" ]; then # if codes exists use it as is (useful to force a returned code value)
-			codes="${s0:+;0}${s1:+;1}${s2:+;2}${s3:+;3}${s4:+;4}${s5:+;5}${s6:+;6}${fgc:+;$fgc}${bgc:+;$bgc}" # got something like ';0;1;4;37;43'
+			codes="${s0:+;0}${s1:+;1}${s2:+;2}${s3:+;3}${s4:+;4}${s5:+;5}${s6:+;6}${s7:+;7}${s8:+;8}${fgc:+;$fgc}${bgc:+;$bgc}" # got something like ';0;1;4;37;43'
 			codes="${codes#;}" # remove the first ';' and got '0;1;4;37;43'
 		fi
 		if [ -n "$codes" ]; then

@@ -26,3 +26,5 @@ ansicolors %{U_Yellow} U_Yellow %{DEFAULT} ' ' %{u_yellow} u_yellow %{DEFAULT} %
 
 ansicolors %{color=no} %{U_Yellow} U_Yellow %{DEFAULT} ' ' %{u_yellow} u_yellow %{DEFAULT} %{LF}
 
+#ansicolors_line '%{red}bb%{-} %{bg_blue}dd%%%{-}%{lf}'       
+
