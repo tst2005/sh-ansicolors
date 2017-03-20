@@ -70,6 +70,9 @@ ansicolors() {
 		for x in $list; do
 			local c=''				# tmp color code
 			case "$x" in
+				(*[A-Z]*) x="$(printf '%s' "$x" | tr 'A-Z' 'a-z')";;
+			esac
+			case "$x" in
 				('raw')		fmt='%s' ;;
 				('eval')	fmt=''   ;;
 
