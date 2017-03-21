@@ -13,8 +13,8 @@ x='%{eval}'\
 %{  }10╚═╝  ╚═╝Z20╚═╝  ╚═══╝Z30╚══════╝Z40╚═╝Z   51╚═════╝Z 61╚═════╝Z 71╚══════╝Z 81╚═════╝Z 91╚═╝Z  91╚═╝ZA1╚══════╝Z'\
 '%{LF}'
 
-(
-ansicolors_line "$(printf '%s' "$x" | sed \
+
+printf '%s' "$x" | sed \
 	-e 's,Z,%{-},g' \
 	-e 's,10,%{red},g' \
 	-e 's,20,%{yellow},g' \
@@ -26,5 +26,7 @@ ansicolors_line "$(printf '%s' "$x" | sed \
 	-e 's,81,%{bg+purple},g' \
 	-e 's,91,%{bg+red},g' \
 	-e 's,A1,%{bg+yellow},g' \
-	)"
-)
+> demo.tmpl
+
+. ./ansicolors.sh
+( ansicolors_line "$(cat demo.tmpl)" )
