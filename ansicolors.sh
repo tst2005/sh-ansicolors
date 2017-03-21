@@ -19,7 +19,7 @@ ansicolors_line() {
 		esac
 		# ^(%{[^}]*})(.*)$ => \1
 		# tag => \1
-		# trainling ~=> \2
+		# trailing ~=> \2
 		local tag="${line%%\}*}"'}'
 		line="${line#*\}}"
 		local trailing="${line%%%{*\}*}"
