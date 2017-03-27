@@ -5,13 +5,13 @@ ansicolors_line() {
 	local fmt='%s\n'
 	while [ -n "$line" ]; do
 		case "$line" in
+			("")	break ;;
 			('%{'*'}'*) ;;
 			(*'%{'*)
 				echo >&2 "unterminated color tag, missing '}' in $line"
 				#set -- "$@" "$line"
 				return 1
 			;;
-			("")	break ;;
 			(*)
 				set -- "$@" "$line"
 				break
@@ -44,17 +44,17 @@ ansicolors() {
 	while [ $# -gt 0 ]; do
 		case "$1" in
 			('%{'*'}') ;;
-			('%{'*'}'*'}'*)
-				local line="$1";shift
-				while true; do
-					local tag="${line%%\}*}"'}'	# ^(%{[^}]*})(.*)$ => \1
-					line="${line#*\}}"
-					local trailing="${line%%\%*}" 	# ^(%{[^}]*})(.*)$ => \2
-					line="${line#*\%\{}"'%{'
-				done
-				#shift
-				continue
-			;;
+#			('%{'*'}'*'}'*)
+#				local line="$1";shift
+#				while true; do
+#					local tag="${line%%\}*}"'}'	# ^(%{[^}]*})(.*)$ => \1
+#					line="${line#*\}}"
+#					local trailing="${line%%\%*}" 	# ^(%{[^}]*})(.*)$ => \2
+#					line="${line#*\%\{}"'%{'
+#				done
+#				#shift
+#				continue
+#			;;
 			(*) printf '%s' "$1"; shift; continue ;;
 		esac
 
@@ -68,6 +68,7 @@ ansicolors() {
 
 		IFS="${IFS}+_"					# Split the list using spaces or '+' separators
 		for x in $list; do
+			[ -n "$x" ] || continue
 			local c=''				# tmp color code
 			case "$x" in
 				(*[A-Z]*) x="$(printf '%s' "$x" | tr 'A-Z' 'a-z')";;
@@ -99,7 +100,7 @@ ansicolors() {
 
 			#	('none')		exit 1		;;
 			#	('reset')		codes='0' ; break ;;
-				('-'|''|'normal')	s0=true		;;
+				('-'|'normal')		s0=true		;;
 				('default')		s0=true		;;
 				('b'|'bold')		s1=true		;;
 				('s1')			s1=true		;;
