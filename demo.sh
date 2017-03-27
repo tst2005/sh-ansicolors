@@ -2,8 +2,6 @@
 
 cd -- "$(dirname "$0")" || exit 1
 
-. ./ansicolors.sh
-
 x='%{eval}'\
 '%{ } 10█████╗Z 20███╗   ██╗Z30███████╗Z40██╗Z   51██████╗Z 61██████╗Z 71██╗Z      81██████╗Z 91██████%{}╗Z A1███████╗Z
 %{  }10██╔══██╗Z20████╗  ██║Z30██╔════╝Z40██║Z  51██╔════╝Z61██╔═══██╗Z71██║Z     81██╔═══██╗Z91██╔══█%{}█╗ZA1██╔════╝Z
@@ -13,8 +11,7 @@ x='%{eval}'\
 %{  }10╚═╝  ╚═╝Z20╚═╝  ╚═══╝Z30╚══════╝Z40╚═╝Z   51╚═════╝Z 61╚═════╝Z 71╚══════╝Z 81╚═════╝Z 91╚═╝Z  91╚═╝ZA1╚══════╝Z'\
 '%{LF}'
 
-
-printf '%s' "$x" | sed \
+printf '%s\n' "$x" | sed \
 	-e 's,Z,%{-},g' \
 	-e 's,10,%{red},g' \
 	-e 's,20,%{yellow},g' \
@@ -28,5 +25,7 @@ printf '%s' "$x" | sed \
 	-e 's,A1,%{bg+yellow},g' \
 > demo.tmpl
 
+(
 . ./ansicolors.sh
-( ansicolors_line "$(cat demo.tmpl)" )
+ansicolors_line "$(cat demo.tmpl)"
+)
